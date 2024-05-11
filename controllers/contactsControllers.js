@@ -42,9 +42,9 @@ export const createContact = async (req, res) => {
   });
 
   if (typeof error !== "undefined") {
-    return res
-      .status(400)
-      .send(error.details.map((error) => error.message).join(", "));
+    return res.status(400).send({
+      message: `${error.details.map((error) => error.message).join(", ")}`,
+    });
   }
 
   const contact = await contactsServices.addContact(createdContact);
@@ -62,14 +62,18 @@ export const updateContact = async (req, res) => {
   });
 
   if (typeof error !== "undefined") {
-    return res
-      .status(400)
-      .send(error.details.map((error) => error.message).join(", "));
+    return res.status(400).send({
+      message: `${error.details.map((error) => error.message).join(", ")}`,
+    });
   }
 
   const contact = await contactsServices.changeContact(id, update);
 
-  return res.status(200).json(contact);
+  if (contact) {
+    return res.status(200).json(contact);
+  }
+
+  return res.status(404).json({ message: "Not found" });
 };
 
 router.get("/", getAllContacts);
