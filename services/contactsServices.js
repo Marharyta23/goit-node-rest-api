@@ -1,91 +1,43 @@
-import fs from "node:fs/promises";
-import path from "node:path";
-import crypto from "node:crypto";
-import { log } from "node:console";
-
-const contactsPath = path.resolve("db", "contacts.json");
-
-async function readFile() {
-  const data = await fs.readFile(contactsPath, { encoding: "utf-8" });
-
-  return JSON.parse(data);
-}
+import Contact from "../models/contacts.js";
 
 async function writeFile(contact) {
-  await fs.writeFile(contactsPath, JSON.stringify(contact));
+  const newContact = await Contact.create(contact);
+
+  return newContact;
 }
 
 async function listContacts() {
-  const data = await readFile();
+  const data = await Contact.find();
+
   return data;
 }
 
 async function getContactById(contactId) {
-  const contacts = await readFile();
-
-  const contact = contacts.find((contact) => contact.id === contactId);
-
-  if (typeof contact === "undefined") {
-    return null;
-  }
+  const contact = await Contact.findById(contactId);
 
   return contact;
 }
 
 async function removeContact(contactId) {
-  const contacts = await readFile();
-
-  const idx = contacts.findIndex((contact) => contact.id === contactId);
-
-  if (idx === -1) {
-    return null;
-  }
-
-  const removedContact = contacts[idx];
-
-  contacts.splice(idx, 1);
-
-  await writeFile(contacts);
+  const removedContact = await Contact.findByIdAndDelete(contactId);
 
   return removedContact;
 }
 
 async function addContact(createdContact) {
-  const contacts = await readFile();
-
-  const newContact = {
-    id: crypto.randomUUID(),
-    ...createdContact,
-  };
-
-  contacts.push(newContact);
-
-  await writeFile(contacts);
+  const newContact = await writeFile(createdContact);
 
   return newContact;
 }
 
 async function changeContact(id, update) {
-  const contacts = await readFile();
+  const changedContact = await Contact.findByIdAndUpdate(id, update);
 
-  const idx = contacts.findIndex((contact) => contact.id === id);
+  return changedContact;
+}
 
-  if (idx === -1) {
-    return null;
-  }
-
-  const contact = contacts[idx];
-
-  const changedContact = {
-    ...contact,
-    ...update,
-  };
-
-  contacts.splice(idx, 1);
-
-  contacts.push(changedContact);
-
-  await writeFile(contacts);
+async function updateStatusContact(id, update) {
+  const changedContact = await Contact.findByIdAndUpdate(id, update);
 
   return changedContact;
 }
@@ -96,4 +48,5 @@ export default {
   removeContact,
   addContact,
   changeContact,
+  updateStatusContact,
 };
