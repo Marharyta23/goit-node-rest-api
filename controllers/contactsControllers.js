@@ -1,12 +1,10 @@
+import mongoose from "mongoose";
 import contactsServices from "../services/contactsServices.js";
-import express from "express";
 import {
   createContactSchema,
   updateContactSchema,
   updateFavoriteSchema,
 } from "../schemas/contactsSchemas.js";
-
-const router = express.Router();
 
 export const getAllContacts = async (req, res, next) => {
   try {
@@ -19,6 +17,10 @@ export const getAllContacts = async (req, res, next) => {
 
 export const getOneContact = async (req, res, next) => {
   const { id } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(404).send({ message: "ID is incorrect" });
+  }
 
   try {
     const contact = await contactsServices.getContactById(id);
@@ -33,6 +35,10 @@ export const getOneContact = async (req, res, next) => {
 
 export const deleteContact = async (req, res, next) => {
   const { id } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(404).send({ message: "Not found" });
+  }
 
   try {
     const contact = await contactsServices.removeContact(id);
@@ -68,8 +74,12 @@ export const createContact = async (req, res, next) => {
 
 export const updateContact = async (req, res, next) => {
   const { id } = req.params;
-
   const update = req.body;
+
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(404).send({ message: "Not found" });
+  }
+
   try {
     const { error } = updateContactSchema.validate(update, {
       abortEarly: false,
@@ -96,6 +106,10 @@ export const updateContact = async (req, res, next) => {
 export const updateFavoriteContact = async (req, res, next) => {
   const { id } = req.params;
   const update = req.body;
+
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(404).send({ message: "ID is incorrect" });
+  }
 
   try {
     const { error } = updateFavoriteSchema.validate(update, {
