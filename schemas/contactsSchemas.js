@@ -1,6 +1,7 @@
 import Joi from "joi";
 
 export const createContactSchema = Joi.object({
+  owner: Joi.string(),
   name: Joi.string().required().min(2),
   email: Joi.string().email().required().max(50),
   phone: Joi.string().required().min(5),
