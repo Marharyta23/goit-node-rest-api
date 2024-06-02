@@ -105,7 +105,13 @@ export const updateContact = async (req, res, next) => {
       });
     }
 
-    const contact = await Contact.findOneAndUpdate(id, update);
+    const contact = await Contact.findOneAndUpdate(
+      {
+        _id: id,
+        owner: req.user.id,
+      },
+      update
+    );
 
     if (contact) {
       return res.status(200).send(contact);
