@@ -103,12 +103,10 @@ async function logout(req, res, next) {
 async function current(req, res, next) {
   try {
     const currentUser = await User.findById(req.user.id);
-    console.log(currentUser);
+
     res.status(200).send({
-      user: {
-        email: currentUser.email,
-        subscription: currentUser.subscription,
-      },
+      email: currentUser.email,
+      subscription: currentUser.subscription,
     });
   } catch (error) {
     next(error);

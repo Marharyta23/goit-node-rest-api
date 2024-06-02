@@ -24,14 +24,10 @@ export const getOneContact = async (req, res, next) => {
   }
 
   try {
-    const contact = await Contact.findById(id);
+    const contact = await Contact.findOne({ _id: id, owner: req.user.id });
 
     if (contact === null) {
       return res.status(404).send({ message: "Not found" });
-    }
-
-    if (contact.owner.toString() !== req.user.id) {
-      return res.status(404).send({ message: "Contact not found" });
     }
 
     return res.status(200).send(contact);
@@ -48,11 +44,10 @@ export const deleteContact = async (req, res, next) => {
   }
 
   try {
-    const contact = await Contact.findByIdAndDelete(id);
-
-    if (contact.owner.toString() !== req.user.id) {
-      return res.status(404).send({ message: "Contact not found" });
-    }
+    const contact = await Contact.findOneAndDelete({
+      _id: id,
+      owner: req.user.id,
+    });
 
     if (contact) {
       return res.status(200).send(contact);
@@ -110,11 +105,7 @@ export const updateContact = async (req, res, next) => {
       });
     }
 
-    if (contact.owner.toString() !== req.user.id) {
-      return res.status(404).send({ message: "Contact not found" });
-    }
-
-    const contact = await Contact.findByIdAndUpdate(id, update);
+    const contact = await Contact.findOneAndUpdate(id, update);
 
     if (contact) {
       return res.status(200).send(contact);
@@ -149,7 +140,13 @@ export const updateFavoriteContact = async (req, res, next) => {
       return res.status(404).send({ message: "Contact not found" });
     }
 
-    const contact = await Contact.findByIdAndUpdate(id, update);
+    const contact = await Contact.findByIdAndUpdate(
+      {
+        _id: id,
+        owner: req.user.id,
+      },
+      update
+    );
 
     if (contact) {
       return res.status(200).send(contact);
