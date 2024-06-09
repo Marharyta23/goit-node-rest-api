@@ -121,13 +121,12 @@ async function current(req, res, next) {
 
 async function avatar(req, res, next) {
   try {
-    Jimp.read(req.file.path)
-      .then((img) => {
-        img.resize(250, 25);
-      })
-      .catch((err) => {
-        console.error(err);
-      });
+    if (!req.file) {
+      return res.status(400).send({ message: "no image detected" });
+    }
+
+    const image = await Jimp.read(req.file.path);
+    await image.resize(250, 250).writeAsync(req.file.path);
 
     await fs.rename(
       req.file.path,
@@ -135,11 +134,11 @@ async function avatar(req, res, next) {
     );
 
     const user = await User.findByIdAndUpdate(req.user.id, {
-      avatarURL: req.file.filename,
+      avatarURL: `/avatars/${req.file.filename}`,
     });
 
     res.status(200).send({
-      avatarURL: req.file.filename,
+      avatarURL: user.avatarURL,
     });
   } catch (error) {
     next(error);
