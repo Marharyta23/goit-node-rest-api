@@ -16,5 +16,7 @@ router.patch(
   avatarMiddleware.single("avatar"),
   authController.avatar
 );
+router.get("/verify/:verificationToken", authController.verify)
+router.post("/verify", authController.verifyByEmail)
 
 export default router;
